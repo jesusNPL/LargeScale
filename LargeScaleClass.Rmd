@@ -26,24 +26,24 @@ setwd("path/for/your/directory")
 Install and load the following packages
 
 ```{r, eval = FALSE}
-require(maptools)
-require(rgdal)
-require(raster)
-require(sp)
-require(rangeBuilder)
-library(spdep)
-library(ncf)
-require(geiger)
-require(dismo)
-library(letsR)
-library(rworldmap)
-require(spatialreg)
-require(picante)
-require(ape)
+require(maptools) # Tools for Handling Spatial Objects
+require(rgdal) # Bindings for the 'Geospatial' Data Abstraction Library
+require(raster) # Geographic Data Analysis and Modeling
+require(sp) # Classes and Methods for Spatial Data
+require(rangeBuilder) # not installed on this machine
+library(spdep) # Spatial Dependence: Weighting Schemes, Statistics
+library(ncf) # Spatial Covariance Functions 
+require(geiger) # Analysis of Evolutionary Diversification
+require(dismo) # Species Distribution Modeling
+library(letsR) # Data Handling and Analysis in Macroecology
+library(rworldmap) # Mapping Global Data
+require(spatialreg) # Spatial Regression Analysis 
+require(picante) # Integrating Phylogenies and Ecology
+require(ape) # Analyses of Phylogenetics and Evolution
 ```
 # From point occurrences to range maps
 
-Load species occurrences data points. We will occurrences from Live oaks, that were obtained from iDigBio between 20 and 24 July 2018 by Jeannine Cavender-Bares. Notice that these occurrence data points were visually examined and any localities that were outside the known range of the species, or in unrealistic locations (e.g., water bodies, crop fields) were discarded. 
+Load species occurrences data points. We will use occurrences from Live oaks, that were obtained from iDigBio between 20 and 24 July 2018 by Jeannine Cavender-Bares. Notice that these occurrence data points were visually examined and any localities that were outside the known range of the species, or in unrealistic locations (e.g., water bodies, crop fields) were discarded. 
 
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
 oaks <- read.table("Data/OCC/live.oaks.txt", header = TRUE)
@@ -55,14 +55,14 @@ head(oaks)
 tail(oaks)
 ```
 
-Plot the points (x = Logitude, y = Latitude) and a world map, for reference. We need to load a data object from the maptools package
+Plot the points (x = Logitude, y = Latitude) and a world map, for reference. We need to load a data object from the {rworldmap} package
 
 ```{r, eval = FALSE, fig.keep='all'}
 {plot(oaks[c(2:3)], col = "blue", pch = 19)
 plot(countriesCoarse, add = TRUE)}
 ```
 
-Lets try with a single species in this case, Quercus virginiana
+Lets try with a single species, in this case, Quercus virginiana
 ```{r, eval = FALSE}
 unique(oaks$Species)
 
@@ -127,7 +127,6 @@ oaks_hull <- convHull(oaks_nodups[, c(2:3)])
 points(oaks_nodups$Longitude, oaks_nodups$Latitude, pch = 16, col = "black")}
 ```
 
-
 Ok, now let's try with a single species,
 
 ```{r, eval = FALSE}
@@ -159,7 +158,7 @@ points(que_vir$Longitude, que_vir$Latitude, pch = 16, col = "red")
 plot(countriesCoarse, add = TRUE)}
 ```
 
-Ok, using simple convex hull seems not to be a good tool for live oaks, now lets try another approach. Now, we will use the dynamic alpha hull from the package rangeBuilder.
+Using simple convex hull seems not to be a good tool for live oaks, now lets try another approach. Now, we will use the dynamic alpha hull from the package {rangeBuilder}.
 
 ## Dynamic Alpha hull
 
@@ -178,7 +177,7 @@ points(que_vir$Longitude, que_vir$Latitude, pch = 16, col = "green")
 plot(countriesCoarse, add = TRUE, lwd = 2)}
 ```
 
-Is there a difference? Please, explain the difference!
+Is there any difference? Please, explain the difference!
 
 Until here we explored how to plot, clean and build species geographical ranges using occurrences. Now will use species geographical ranges of the largest continental endemic radiation (Furnariides) to explore the geographical gradients of species diversity.
 
@@ -188,7 +187,7 @@ Until here we explored how to plot, clean and build species geographical ranges 
 
 The geographical ranges correspond to the Infraorder Furnariides (Aves). This data is available thorough BirdLife International (http://datazone.birdlife.org/species/requestdis) and you can use any other group available on IUCN or BIEN (for plants in the Americas). In any case, you first need to download the polygons in shapefile format.
 
-To load the Furnariides geographical ranges we will use the function **readOGR** from the package **rgdal**. There are other functions
+To load the Furnariides geographical ranges we will use the function **{readOGR}** from the package **{rgdal}**. There are other functions
 
 ```{r, eval = FALSE}
 franges <- readOGR(dsn = "Data/Franges", layer = "Furnarii_ranges_geo")
@@ -215,7 +214,7 @@ neo_ras
 values(neo_ras) <- 0
 ```
 
-Now using the empty raster we will **rasterize** the species identities in each cell or pixel. The resulting raster will be the species richness of Furnariides across the Neotropics.
+Now using the empty raster we will **rasterize** the species identities in each cell or pixel. The resulting raster will be the Furnariides' species richness across the Neotropics.
 
 ```{r, eval = FALSE}
 f_sr_raster <- rasterize(franges, neo_ras, field = "SCINAME", 
@@ -246,7 +245,7 @@ plot(countriesCoarse, add = T)}
 
 Awesome, right?. Now, please describe the observed pattern!
 
-Lets try to rasterize other information from the polygon data set. We will use the information in the column **RD**, this data correspond to the numbers of nodes from the tips to the root of a phylogenetic tree or just **root distance**, thus, will use the RD to calculate the MRD metric **(mean root distance)** that measures the evolutionary derivedness of species within an assemblage (Kerr & Currie, 1999) and can be used to determine whether a local fauna is constituted primarily by early-diverged or by recently originated species (Hawkins et al., 2012). 
+Let's try to rasterize other information from the polygon data set. We will use the information in the column **RD**, this data correspond to the numbers of nodes from the tips to the root of a phylogenetic tree or just **root distance**, thus, will use the RD to calculate the MRD metric **(mean root distance)** that measures the evolutionary derivedness of species within an assemblage (Kerr & Currie, 1999) and can be used to determine whether a local fauna is constituted primarily by early-diverged or by recently originated species (Hawkins et al., 2012). 
 
 ```{r, eval = FALSE}
 head(franges@data)
@@ -297,11 +296,11 @@ Hmmm. What happened in here? So, please answer the next questions.
 
 *From the mean root distance map, it is possible to explain the Furnariides diversity gradient? If so, please explain from an evolutionary perspective* 
 
-Let's be more quantitative in describing that realtionship with a linear model.
+Let's be more quantitative in describing that relationship with a linear model.
 
 ## Scale dependency
 
-Now we will explore one of the oldest problems in ecology and evolution, the **scale dependency** in the data. So to explore this scale dependence, we will rasterize the Furnariides ranges, but using different spatial resolutions from 2º to 4º degrees of long-lat.
+Now we will explore one of the oldest problems in ecology and evolution, the **scale dependency** in the data. So, to explore this scale dependence we will rasterize the Furnariides ranges, but using different spatial resolutions from 2º to 4º degrees of long-lat.
 
 ```{r, eval = FALSE}
 # 2º degrees
@@ -428,8 +427,7 @@ plot(fdata$f_ras_bio12, fdata$f_ras_rich, xlab = "Bio 12", ylab = "Richness")}
 
 ## Considering spatial autocorrelation
 
-We now that a correlation is not a causation, so to explore the relationship we need to build a model or fit a model. To explore this relationships we will first explore a simple Ordinary Least Square regression or OLS.
-
+We now that a correlation is not causation, so to explore the true relationships between a variable and N covariables we need to build a model or fit a model. To explore this relationships we will first explore a simple Ordinary Least Square regression or OLS.
 
 ```{r, eval = FALSE}
 fols <- lm(f_ras_rich ~ f_ras_bio1 + f_ras_bio12, data = fdata)
@@ -445,7 +443,7 @@ summary(fols2)
 
 *What is telling us this OLS?*
 
-Now, explore the spatial autocorrelation of the Furnariides richness gradient.
+Now, explore the spatial autocorrelation in the Furnariides richness gradient.
 
 ```{r, eval = FALSE}
 autocor_SR <- ncf::correlog(fdata$x, fdata$y, z = fdata$f_ras_rich, na.rm = T, 
@@ -506,7 +504,7 @@ abline(h = 0)
 title(main = "OLS residuals", cex = 1.5)}
 ```
 
-Ohhh, seems that the residuals have a strong spatial autocorrelation, that is a problem because if we found autocorrelation in the residuals much of the explanation that we obtain can be biased.
+Ohhh, seems that the residuals have a strong spatial autocorrelation, that is a problem because if we found autocorrelation in the residuals much of the explanation that we obtained can be biased.
 
 Let's inspect two two autocorrelograms.
 
@@ -526,7 +524,7 @@ abline(h = 0)
 title(main = "OLS residuals", cex = 1.5)}
 ```
 
-Hmmm, seems that there is a strong spatial autocorrelation, thus any conclusion using the OLS model can be biased.
+Hmmm, seems that there is a strong spatial autocorrelation, thus any conclusion based on the use of this OLS model can be biased.
 
 To try to solve this important issue, we will use **spatial simultaneous autoregressive error model estimation (Aka SAR model)**, this model account for spatial autocorrelation by adding an extra term (autoregressive) in the form of a spatial-weight matrix that specifies the neighborhood of each cell or pixel and the relative weight of each neighbor.
 
@@ -583,7 +581,7 @@ summary(sar_nb1.5.w)
 summary(fols2)
 ```
 
-Looking to the summary of the SAR and OLS models, explain the diferences in the coefficients between both models.
+Looking to the summary of the SAR and OLS models, explain the differences in the coefficients between both models.
 
 Now let's compare the prediction of both models. To calculate a R2 to the SAR model, we will use the function **SARr2()** from GitHub.
 
@@ -730,3 +728,8 @@ Pigot, A. L., & Etienne, R. S. (2015). A new dynamic null model for phylogenetic
 Pinto-Ledezma, J. N., Simon, L. M., Diniz-Filho, J. A. F., & Villalobos, F. (2017). The geographical diversification of Furnariides: the role of forest versus open habitats in driving species richness gradients. Journal of Biogeography, 44(8), 1683–1693.
 
 Pinto-Ledezma, J. N., Jahn, A. E., Cueto, V. R., Diniz-Filho, J. A. F., & Villalobos, F. (2019). Drivers of Phylogenetic Assemblage Structure of the Furnariides, a Widespread Clade of Lowland Neotropical Birds. The American Naturalist, 193(2), E41–E56.
+
+
+
+
+
